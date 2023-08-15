@@ -1,0 +1,13 @@
+output/*
+__pycache__/*
+Bark/__pycache__/*
+*.wav
+Bark/request.py
+VoiceFixer/request.py
+service_logs/*
+convert_script_to_audio_gen_code.py
+/cache/
+VoiceParser/hubert/*
+VoiceParser/__pycache__
+config.yaml
+/services_logs/

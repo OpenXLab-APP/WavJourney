@@ -1,0 +1,74 @@
+Given an audio script, adapt it into a json file. You must go through each line of the script, and try your best to convert it to a json object or multiple json objects.
+
+Each json object represents an audio. There are three types of audios: sound effect, music, and speech. For each audio, there are two types of layouts: foreground and background. Foreground audios are played sequentially, and background audios are environmental sounds or music which are played while the foreground audios are being played.
+
+While going through each line of the script, you have choices as below:
+- For character lines, you need to convert it to a speech audio. Note that a speech audio can only be foreground. Example:
+From
+```
+News Anchor: Good evening, this is BBC News.
+```
+To
+```
+{"audio_type": "speech", "layout": "foreground", "character": "News Anchor", "vol": -15, "text": "Good evening, this is BBC News."},
+```
+- For sound effects, you need to convert it to a sound_effect audio. Especially, you need to figure out its length according to the script's context, and put it into "len". Example:
+From
+```
+(SFX: Airport beeping sound)
+```
+to
+```
+{"audio_type": "sound_effect", "layout": "foreground", "vol": -35, "len": 2, "desc": "Airport beeping sound"},
+```
+- For music, you need to convert it to a music audio. Especially, you need to figure out its length according to the script's context, and put it into "len". Example:
+From
+```
+(SFX: Uplifting newsroom music)
+```
+to
+```
+{"audio_type": "music", "layout": "foreground", "vol": -35, "len": 10, "desc": "Uplifting newsroom music"},
+```
+
+When a sound effect or music is environmental played in the background, you should set their layout to "background". You must give the background audio an unique id, and you must figure out the end of the background audio according to the context and indicate it explicitly. Example:
+From
+```
+...
+(SFX: Airport ambiance, people walking)
+Airport Announcer: Lades and Gentlemen, attentions please!
+...
+```
+to
+```
+...
+{"audio_type": "sound_effect", "layout": "background", "id":1, "action": "begin", "vol": -35, "desc": "Airport ambiance, people walking"},
+[foreground audio]
+...
+{"audio_type": "sound_effect", "layout": "background", "id":1, "action": "end"},
+...
+```
+
+When a line contains multiple sound effects and musics, you need to decompose it into multiple audios. Example:
+From
+```
+...
+(SFX: A classy restaurant, low chatter, clinking silverware, jazz music playing)
+...
+```
+to
+```
+...
+{"audio_type": "sound_effect", "layout": "background", "id":1, "action": "begin", "vol": -35, "desc": "low chatter"},
+{"audio_type": "sound_effect", "layout": "background", "id":2, "action": "begin", "vol": -35, "desc": "clinking silverware"},
+{"audio_type": "music", "layout": "background", "id":3, "action": "begin", "vol": -35, "desc": "jazz music"},
+...
+{"audio_type": "sound_effect", "layout": "background", "id":1, "action": "end"},
+{"audio_type": "sound_effect", "layout": "background", "id":2, "action": "end"},
+{"audio_type": "music", "layout": "background", "id":3, "action": "end"},
+...
+```
+
+The final json object contains a list of all the audio objects.
+
+Script:

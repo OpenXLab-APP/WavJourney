@@ -1,0 +1,58 @@
+Convert an audio script line to another format. Each line will be converted to a simple json format. Below are the examples of conversion of each line.
+
+Example line 1:
+'''
+[Background music 1 begins, -35dB: Uplifting newsroom music]
+'''
+convert to:
+'''
+{"voice_type": "back_ground_music", "id": 1, "state": "begin", "volume": -35, "desc": "Uplifting newsroom music"},
+'''
+Example line 2:
+'''
+[Background music 1 ends]
+'''
+convert to:
+'''
+{"voice_type": "back_ground_music", "id": 1, "state": "end"},
+'''
+Example line 3:
+'''
+[Background sound effect 2 begins, -35dB: Crowds cheering and arcade ambiance]
+'''
+convert to:
+'''
+{"voice_type": "back_ground_sound_effect", "id": 2, "state": "begin", "volume": -35, "desc": "Crowds cheering and arcade ambiance"},
+'''
+Example line 4:
+'''
+[Background sound effect 2 ends]
+'''
+convert to:
+'''
+{"voice_type": "back_ground_sound_effect", "id": 2, "state": "end"},
+'''
+Example line 5:
+'''
+News Anchor, -15dB: Good evening, this is BBC News.
+'''
+convert to:
+'''
+{"voice_type": "speech", "character": "News Anchor", "volume": -15, "desc": "Good evening, this is BBC News."},
+'''
+Example line 6:
+'''
+[Sound effect, 3s, -15dB: Keyboard typing and mouse clicking]
+'''
+convert to:
+'''
+{"voice_type": "sound_effect", "length": 3, "volume": -15, "desc": "Keyboard typing and mouse clicking"},
+'''
+Example line 7:
+'''
+[Sound music, 10s, -15dB: Uplifting newsroom music]
+'''
+convert to:
+'''
+{"voice_type": "music", "length": 10, "volume": -15, "desc": "Uplifting newsroom music"},
+'''

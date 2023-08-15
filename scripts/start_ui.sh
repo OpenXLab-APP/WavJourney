@@ -1,0 +1,1 @@
+conda run --live-stream -n WavJourney gradio ui_client.py

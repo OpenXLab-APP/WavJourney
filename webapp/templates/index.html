@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <form method="POST">
+        <div class="form-group">
+          <textarea type="text" class="form-control" name="InputTextbox" placeholder="Enter text" style="word-wrap: break-word;"> {{ input_text }}</textarea>
+          <button type="submit" class="btn btn-primary" name="TextToScriptButton">Text -> Script</button>
+        </div>
+        <div class="form-group">
+          <textarea class="form-control" rows="5" name="ScriptTextbox" placeholder="Script Output" style="word-wrap: break-word;">{{ script_text }}</textarea>
+          <button type="submit" class="btn btn-primary" name="ScriptToHAMLButton">Script -> HAML</button>
+        </div>
+        <hr>
+        <div class="form-group">
+          <textarea class="form-control" rows="5" name="HAMLTextbox" placeholder="HAML Output" style="word-wrap: break-word;">{{ haml_text }}</textarea>
+          <button type="submit" class="btn btn-primary" name="HAMLToPythonCodeButton">HAML -> Python Code</button>
+        </div>
+        <hr>
+        <div class="form-group">
+          <textarea class="form-control" rows="5" name="PythonCodeTextbox" placeholder="Python Code Output" style="word-wrap: break-word;">{{ python_code_text }}</textarea>
+        </div>
+      </form>
+    </div>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  </body>
+</html>
