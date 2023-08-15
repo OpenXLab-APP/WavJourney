@@ -1,3 +1,17 @@
+---
+title: WavJourney
+emoji: 🔥
+colorFrom: blue
+colorTo: purple
+sdk: gradio
+sdk_version: 3.40.1
+app_file: app.py
+pinned: false
+license: cc-by-nc-nd-4.0
+---
+
+Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+
 # How to run WavJourney?
 1. Install environment by following the bash scripts in `EnvsSetup/`
 2. Start API services; The service logs are in the folder of `logs/`
