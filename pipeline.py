@@ -1,11 +1,8 @@
-import argparse
 import datetime
 import os
-import subprocess
 from string import Template
 import openai
 import re
-from pathlib import Path
 import glob
 from utils import get_key
 import pickle
@@ -13,7 +10,6 @@ import time
 import json5
 from retrying import retry
 from code_generator import check_json_script, collect_and_check_audio_data
-from tabulate import tabulate
 import random
 import string
 
@@ -21,7 +17,8 @@ import utils
 import voice_presets
 from code_generator import AudioCodeGenerator
 
-USE_OPENAI_CACHE = True
+# Enable this for debugging
+USE_OPENAI_CACHE = False
 openai_cache = []
 if USE_OPENAI_CACHE:
     os.makedirs('cache', exist_ok=True)
@@ -203,7 +200,7 @@ def generate_audio(session_id, json_script):
     voices = voice_presets.get_merged_voice_presets(session_id)
 
     # Step 2
-    json_script_to_char_voice_map(json_script, voices, output_path)
+    char_voice_map = json_script_to_char_voice_map(json_script, voices, output_path)
     # Step 3
     json_script_filename = output_path / 'audio_script.json'
     char_voice_map_filename = output_path / 'character_voice_map.json'
@@ -214,22 +211,9 @@ def generate_audio(session_id, json_script):
 
     result_wav_filename = output_audio_path / f'{result_wav_basename}.wav'
     print(f'Done all processes, result: {result_wav_filename}')
-    return result_wav_filename
+    return result_wav_filename, char_voice_map
 
 # Convenient function call used by wavjourney_cli
 def full_steps(session_id, input_text):
     json_script = generate_json_file(session_id, input_text)
     return generate_audio(session_id, json_script)
-
-def convert_json_to_md(audio_script_response):
-    audio_json_data = json5.loads(audio_script_response)
-    table = [[node.get(field, 'N/A') for field in ["audio_type", "layout", "id", "character", "action", 'vol']] +
-             [node.get("desc", "N/A") if node.get("audio_type") != "speech" else node.get("text", "N/A")] +
-             [node.get("len", "Auto") if "len" in node else "Auto"]
-             for i, node in enumerate(audio_json_data)]
-
-    headers = ["Audio Type", "Layout", "ID", "Character", "Action", 'Volume', "Description", "Length" ]
-
-    # Tabulate
-    table_txt = tabulate(table, headers, tablefmt="github")
-    return table_txt

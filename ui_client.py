@@ -1,30 +1,63 @@
-import pdb
 import shutil
+import json5
 
+import openai
 import gradio as gr
+from tabulate import tabulate
 
-import pipeline
 import utils
+import pipeline
 from pipeline import generate_json_file, generate_audio
 from voice_presets import load_voice_presets_metadata, add_session_voice_preset, \
     remove_session_voice_preset
+from share_btn import community_icon_html, loading_icon_html, share_js
 
-import openai
+
 
 VOICE_PRESETS_HEADERS = ['ID', 'Description']
 DELETE_FILE_WHEN_DO_CLEAR = False
 DEBUG = False
 
 
+def convert_json_to_md(audio_script_response):
+    audio_json_data = json5.loads(audio_script_response)
+    table = [[node.get(field, 'N/A') for field in ["audio_type", "layout", "id", "character", "action", 'vol']] +
+             [node.get("desc", "N/A") if node.get("audio_type") != "speech" else node.get("text", "N/A")] +
+             [node.get("len", "Auto") if "len" in node else "Auto"]
+             for i, node in enumerate(audio_json_data)]
+
+    headers = ["Audio Type", "Layout", "ID", "Character", "Action", 'Volume', "Description", "Length" ]
+
+    # Tabulate
+    table_txt = tabulate(table, headers, tablefmt="github")
+    return table_txt
+
+
+def convert_char_voice_map_to_md(char_voice_map):
+    table =[[character, char_voice_map[character]["id"]] for character in char_voice_map]
+    headers = ["Character", "Voice"]
+    # Tabulate
+    table_txt = tabulate(table, headers, tablefmt="github")
+    return table_txt
+
+
 def generate_script_fn(instruction, _state: gr.State):
     try:
         session_id = _state['session_id']
         json_script = generate_json_file(session_id, instruction)
-        table_text = pipeline.convert_json_to_md(json_script)
+        table_text = convert_json_to_md(json_script)
     except Exception as e:
         gr.Warning(str(e))
         print(f"Generating script error: {str(e)}")
-        return [None, gr.Button.update(interactive=False), _state, gr.Button.update(interactive=True)]
+        return [
+            None,
+            _state,
+            gr.Button.update(interactive=False),
+            gr.Button.update(interactive=True),
+            gr.Button.update(interactive=False),
+            gr.Button.update(interactive=False),
+        ]
+
     _state = {
         **_state,
         'session_id': session_id,
@@ -43,8 +76,11 @@ def generate_script_fn(instruction, _state: gr.State):
 def generate_audio_fn(state):
     btn_state = gr.Button.update(interactive=True)
     try:
-        audio_path = generate_audio(**state)
+        audio_path, char_voice_map = generate_audio(**state)
+        table_text = convert_char_voice_map_to_md(char_voice_map)
+        # TODO: output char_voice_map to a table
         return [
+            table_text,
             gr.make_waveform(str(audio_path)),
             btn_state,
             btn_state,
@@ -54,7 +90,11 @@ def generate_audio_fn(state):
     except Exception as e:
         print(f"Generation audio error: {str(e)}")
         gr.Warning(str(e))
+        # For debugging, uncomment the line below
+        #raise e
+
     return [
+        None,
         None,
         btn_state,
         btn_state,
@@ -164,40 +204,262 @@ def add_voice_preset(vp_id, vp_desc, file, ui_state, added_voice_preset):
             df_visible, del_visible]
 
 
-with gr.Blocks() as interface:
+css = """
+        a {
+            color: inherit;
+            text-decoration: underline;
+        }
+        .gradio-container {
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .gr-button {
+            color: white;
+            border-color: #000000;
+            background: #000000;
+        }
+        input[type='range'] {
+            accent-color: #000000;
+        }
+        .dark input[type='range'] {
+            accent-color: #dfdfdf;
+        }
+        .container {
+            max-width: 730px;
+            margin: auto;
+            padding-top: 1.5rem;
+        }
+        #gallery {
+            min-height: 22rem;
+            margin-bottom: 15px;
+            margin-left: auto;
+            margin-right: auto;
+            border-bottom-right-radius: .5rem !important;
+            border-bottom-left-radius: .5rem !important;
+        }
+        #gallery>div>.h-full {
+            min-height: 20rem;
+        }
+        .details:hover {
+            text-decoration: underline;
+        }
+        .gr-button {
+            white-space: nowrap;
+        }
+        .gr-button:focus {
+            border-color: rgb(147 197 253 / var(--tw-border-opacity));
+            outline: none;
+            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+            --tw-border-opacity: 1;
+            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px var(--tw-ring-offset-width)) var(--tw-ring-color);
+            --tw-ring-color: rgb(191 219 254 / var(--tw-ring-opacity));
+            --tw-ring-opacity: .5;
+        }
+        #advanced-btn {
+            font-size: .7rem !important;
+            line-height: 19px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            padding: 2px 8px;
+            border-radius: 14px !important;
+        }
+        #advanced-options {
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-bottom: 45px;
+            margin-top: 35px;
+            text-align: center;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .footer>p {
+            font-size: .8rem;
+            display: inline-block;
+            padding: 0 10px;
+            transform: translateY(10px);
+            background: white;
+        }
+        .dark .footer {
+            border-color: #303030;
+        }
+        .dark .footer>p {
+            background: #0b0f19;
+        }
+        .acknowledgments h4{
+            margin: 1.25em 0 .25em 0;
+            font-weight: bold;
+            font-size: 115%;
+        }
+        #container-advanced-btns{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        #share-btn-container {
+            display: flex; padding-left: 0.5rem !important; padding-right: 0.5rem !important; background-color: #000000; justify-content: center; align-items: center; border-radius: 9999px !important; width: 13rem;
+            margin-top: 10px;
+            margin-left: auto;
+        }
+        #share-btn {
+            all: initial; color: #ffffff;font-weight: 600; cursor:pointer; font-family: 'IBM Plex Sans', sans-serif; margin-left: 0.5rem !important; padding-top: 0.25rem !important; padding-bottom: 0.25rem !important;right:0;
+        }
+        #share-btn * {
+            all: unset;
+        }
+        #share-btn-container div:nth-child(-n+2){
+            width: auto !important;
+            min-height: 0px !important;
+        }
+        #share-btn-container .wrap {
+            display: none !important;
+        }
+        .gr-form{
+            flex: 1 1 50%; border-top-right-radius: 0; border-bottom-right-radius: 0;
+        }
+        #prompt-container{
+            gap: 0;
+        }
+        #generated_id{
+            min-height: 700px
+        }
+        #setting_id{
+          margin-bottom: 12px;
+          text-align: center;
+          font-weight: 900;
+        }
+"""
+
+with gr.Blocks(css=css) as interface:
+
+    gr.HTML(
+            """
+                <div style="text-align: center; max-width: 700px; margin: 0 auto;">
+                <div
+                    style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.8rem;
+                    font-size: 1.75rem;
+                    "
+                >
+                    <h1 style="font-weight: 900; margin-bottom: 7px; line-height: normal;">
+                    WavJourney: Compositional Audio Creation with LLMs
+                    </h1>
+                </div>
+                <p style="margin-bottom: 10px; margin-top: 10px; font-size: 94%">
+                    <a href="https://arxiv.org/abs/2307.14335">[Paper]</a> <a href="https://audio-agi.github.io/WavJourney_demopage/">[Demo Page]</a> <a href="https://github.com/Audio-AGI/WavJourney">[GitHub]</a> <a href="https://discord.com/invite/5Hqu9NmA8V">[Join Discord]</a>
+                </p>
+                </div>
+            """
+        )
+
+    gr.HTML(
+        """
+        <p>For faster inference without waiting in queue, you may duplicate the space and upgrade to GPU (VRAM>16G) in settings.
+        <br>
+        <a href="https://huggingface.co/spaces/Audio-AGI/WavJourney?duplicate=true">
+        <img style="margin-top: 0em; margin-bottom: 0em" src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>
+        <p/>
+    """
+    )
+
+
+
     system_voice_presets = get_system_voice_presets()
     # State
     ui_state = gr.State(value={'session_id': pipeline.init_session()})
     selected_voice_presets = gr.State(value={'selected_voice_preset': None})
     added_voice_preset_state = gr.State(value={'added_file': None, 'count': 0})
     # UI Component
-    key_text_input = gr.Textbox(label='Please Enter OPENAI Key for acessing GPT4', lines=1, placeholder="Input instruction here.",
-                            value='')
-    text_input_value = '' if DEBUG is False else "News channel BBC broadcast about Trump playing street fighter 6 against Biden"
-    text_input = gr.Textbox(label='Input', lines=2, placeholder="Input instruction here.",
-                            value=text_input_value)
-    markdown_output = gr.Markdown(label='Audio Script', lines=2)
+    gr.Markdown(
+    """
+    How can I access GPT-4? <a href="https://platform.openai.com/account/api-keys">[Guidence1]</a><a href="https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4">[Guidence2]</a>
+    """
+    )
+    key_text_input = gr.Textbox(label='Please Enter OPENAI Key for accessing GPT-4 API', lines=1, placeholder="OPENAI Key here.",
+                            value=utils.get_key())
+    text_input_value = '' if DEBUG is False else "Generate a one-minute introduction to quantum mechanics"
+    
+    text_input = gr.Textbox(
+        label='Input Text Instruction', 
+        lines=2, 
+        placeholder="Input instruction here (e.g., Generate a one-minute introduction to quantum mechanics).",
+        value=text_input_value,
+        elem_id="prompt-in",)
+
+    gr.Markdown(
+    """
+    Clicking 'Generate Script' button, the generated audio script will be displayed below.
+    """
+    )
+    audio_script_markdown = gr.Markdown(label='Audio Script')
     generate_script_btn = gr.Button(value='Generate Script', interactive=False)
-    audio_output = gr.Video(type='filepath')
+    
+    gr.Markdown(
+    """
+    Clicking 'Generate Audio' button, the voice mapping results & generated audio will be displayed below.
+    """
+    )
+    char_voice_map_markdown = gr.Markdown(label='Character-to-voice Map')
+
+    audio_output = gr.Video(elem_id="output-video")
+
     generate_audio_btn = gr.Button(value='Generate Audio', interactive=False)
-    clear_btn = gr.ClearButton(value='Clear Inputs')
+
+    clear_btn = gr.ClearButton(value='Clear All')
+    
+    # share to community
+    with gr.Group(elem_id="share-btn-container", visible=False):
+        community_icon = gr.HTML(community_icon_html)
+        loading_icon = gr.HTML(loading_icon_html)
+        share_button = gr.Button(value="Share to community", elem_id="share-btn")
+
     # System Voice Presets
     gr.Markdown(label='System Voice Presets', value='# System Voice Presets')
     system_markdown_voice_presets = gr.Dataframe(label='System Voice Presets', headers=VOICE_PRESETS_HEADERS,
                                                  value=system_voice_presets)
     # User Voice Preset Related
-    gr.Markdown(label='User Voice Presets', value='# User Voice Presets')
-    get_voice_preset_to_list(ui_state)
-    voice_presets_df = gr.Dataframe(headers=VOICE_PRESETS_HEADERS, col_count=len(VOICE_PRESETS_HEADERS),
+    gr.Markdown('# (Optional) Speaker Customization ')
+    with gr.Accordion("Click to add speakers", open=False):
+        gr.Markdown(label='User Voice Presets', value='## User Voice Presets')
+        get_voice_preset_to_list(ui_state)
+        voice_presets_df = gr.Dataframe(headers=VOICE_PRESETS_HEADERS, col_count=len(VOICE_PRESETS_HEADERS),
                                     value=get_voice_preset_to_list(ui_state), interactive=False, visible=False)
     # voice_presets_ds = gr.Dataset(components=[gr.Dataframe(visible=True)], samples=get_voice_preset_to_list(ui_state))
-    del_voice_btn = gr.Button(value='Delete Selected Voice Preset', visible=False)
-    gr.Markdown(label='Add Voice Preset', value='## Add Voice Preset')
-    vp_text_id = gr.Textbox(label='Id', lines=1, placeholder="Input voice preset id here.")
-    vp_text_desc = gr.Textbox(label='Desc', lines=1, placeholder="Input description here.")
-    vp_file = gr.File(label='Wav File', type='file', description='Upload your wav file here.', file_types=['.wav'],
-                      interactive=True)
-    vp_submit = gr.Button(label='Upload Voice Preset', value="Upload Voice Preset")
+        del_voice_btn = gr.Button(value='Delete Selected Voice Preset', visible=False)
+        gr.Markdown(label='Add Voice Preset', value='## Add Voice Preset')
+        gr.Markdown(
+        """
+        
+        What makes for good voice prompt? See detailed instructions <a href="https://github.com/gitmylo/bark-voice-cloning-HuBERT-quantizer">here</a>. 
+        """
+        )
+        vp_text_id = gr.Textbox(label='Id', lines=1, placeholder="Input voice preset id here.")
+        vp_text_desc = gr.Textbox(label='Desc', lines=1, placeholder="Input description here.")
+        vp_file = gr.File(label='Wav File', type='file', file_types=['.wav'],
+                        interactive=True)
+        vp_submit = gr.Button(label='Upload Voice Preset', value="Upload Voice Preset")
+
+    # disclaimer
+    gr.Markdown(
+        """
+    # Disclaimer
+    We are not responsible for audio generated using semantics created by WavJourney. Just don't use it for illegal purposes.
+    """
+    )
+
     # events
     key_text_input.change(fn=set_openai_key, inputs=[key_text_input], outputs=[key_text_input])
     text_input.change(fn=textbox_listener, inputs=[text_input], outputs=[generate_script_btn])
@@ -205,6 +467,7 @@ with gr.Blocks() as interface:
         fn=generate_audio_fn,
         inputs=[ui_state],
         outputs=[
+            char_voice_map_markdown,
             audio_output,
             generate_audio_btn,
             generate_script_btn,
@@ -214,7 +477,7 @@ with gr.Blocks() as interface:
         api_name='audio_journey',
     )
     generate_audio_btn.click(
-        fn=lambda _: [
+        fn=lambda: [
             gr.Button.update(interactive=False),
             gr.Button.update(interactive=False),
             gr.Button.update(interactive=False),
@@ -228,13 +491,13 @@ with gr.Blocks() as interface:
         ]
     )
     clear_btn.click(fn=clear_fn, inputs=ui_state,
-                    outputs=[text_input, audio_output, markdown_output, generate_audio_btn, generate_script_btn,
+                    outputs=[text_input, audio_output, audio_script_markdown, generate_audio_btn, generate_script_btn,
                              ui_state, voice_presets_df, del_voice_btn,
                              vp_text_id, vp_text_desc, vp_file])
     generate_script_btn.click(
         fn=generate_script_fn, inputs=[text_input, ui_state],
         outputs=[
-            markdown_output,
+            audio_script_markdown,
             ui_state,
             generate_audio_btn,
             generate_script_btn,
@@ -243,7 +506,7 @@ with gr.Blocks() as interface:
         ]
     )
     generate_script_btn.click(
-        fn=lambda _: [
+        fn=lambda: [
             gr.Button.update(interactive=False),
             gr.Button.update(interactive=False),
             gr.Button.update(interactive=False),
@@ -266,6 +529,10 @@ with gr.Blocks() as interface:
                              vp_submit,
                              voice_presets_df, del_voice_btn])
     vp_submit.click(lambda _: gr.Button.update(interactive=False), inputs=[vp_submit])
+    
+    # share to HF community
+    share_button.click(None, [], [], _js=share_js)
+
     # debug only
     # print_state_btn = gr.Button(value='Print State')
     # print_state_btn.click(fn=lambda state, state2: print(state, state2), inputs=[ui_state, selected_voice_presets])

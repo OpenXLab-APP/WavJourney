@@ -1,4 +1,4 @@
-name: Bark
+name: WavJourney
 channels:
   - conda-forge
   - defaults
@@ -177,4 +177,3 @@ dependencies:
       - xxhash==3.3.0
       - yarl==1.9.2
       - zipp==3.16.1
-prefix: /home/zzk/Workspace/miniconda3/envs/Bark

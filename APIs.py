@@ -9,23 +9,13 @@ from retrying import retry
  
 
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
-
 SAMPLE_RATE = 32000
 
 
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)
-    tts_port = config['Text-to-Speech']['service-port']
-    ttm_port = config['Text-to-Music']['service-port']
-    tta_port = config['Text-to-Audio']['service-port']
-    sr_port = config['Speech-Restoration']['service-port']
-    vp_port = config['Voice-Parser']['service-port']
+    service_port = config['Service-Port']
     enable_sr = config['Speech-Restoration']['Enable']
-
-
-def IDLE(length=1.0, out_wav='out.wav', sr=SAMPLE_RATE):
-    idle = np.zeros(int(length * sr))
-    WRITE_AUDIO(idle, name=out_wav, sr=SAMPLE_RATE)
 
 
 def LOUDNESS_NORM(audio, sr=32000, volumn=-25):
@@ -57,7 +47,7 @@ def WRITE_AUDIO(wav, name=None, sr=SAMPLE_RATE):
     if max_value > 1:
         wav *= 0.9 / max_value
     
-    # print(f'WRITE_AUDIO to {name}')
+    # write audio
     write(name, sr, np.round(wav*32767).astype(np.int16))
 
 
@@ -80,10 +70,6 @@ def MIX(wavs=[['1.wav', 0.], ['2.wav', 10.]], out_wav='out.wav', sr=SAMPLE_RATE)
     """
     wavs:[[wav_name, absolute_offset], ...]
     """
-
-    # last_name, last_offset = wavs[-1]
-    # last_len = len(READ_AUDIO_NUMPY(last_name))
-    # max_length = int(last_offset * sr + last_len)
 
     max_length = max([int(wav[1]*sr + len(READ_AUDIO_NUMPY(wav[0]))) for wav in wavs])
     template_wav = np.zeros(max_length)
@@ -125,7 +111,7 @@ def COMPUTE_LEN(wav):
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def TTM(text, length=10, volume=-28, out_wav='out.wav'):
-    url = f'http://127.0.0.1:{ttm_port}/generate_music'
+    url = f'http://127.0.0.1:{service_port}/generate_music'
     data = {
         'text': f'{text}',
         'length': f'{length}',
@@ -143,7 +129,7 @@ def TTM(text, length=10, volume=-28, out_wav='out.wav'):
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def TTA(text, length=5, volume=-35, out_wav='out.wav'):
-    url = f'http://127.0.0.1:{tta_port}/generate_audio'
+    url = f'http://127.0.0.1:{service_port}/generate_audio'
     data = {
         'text': f'{text}',
         'length': f'{length}',
@@ -162,7 +148,7 @@ def TTA(text, length=5, volume=-35, out_wav='out.wav'):
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def TTS(text, speaker='news_anchor', volume=-20, out_wav='out.wav', enhanced=enable_sr, speaker_id='', speaker_npz=''):
-    url = f'http://127.0.0.1:{tts_port}/generate_speech'
+    url = f'http://127.0.0.1:{service_port}/generate_speech'
     data = {
     'text': f'{text}',
     'speaker_id': f'{speaker_id}',
@@ -185,7 +171,7 @@ def TTS(text, speaker='news_anchor', volume=-20, out_wav='out.wav', enhanced=ena
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def SR(processfile):
-    url = f'http://127.0.0.1:{sr_port}/fix_audio'
+    url = f'http://127.0.0.1:{service_port}/fix_audio'
     data = {'processfile': f'{processfile}'}
 
     response = requests.post(url, json=data)
@@ -199,7 +185,7 @@ def SR(processfile):
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def VP(wav_path, out_dir):
-    url = f'http://127.0.0.1:{vp_port}/parse_voice'
+    url = f'http://127.0.0.1:{service_port}/parse_voice'
     data = {
         'wav_path': f'{wav_path}', 
         'out_dir':f'{out_dir}'

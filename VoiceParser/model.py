@@ -8,9 +8,9 @@ torchaudio.set_audio_backend("soundfile")  # Use 'soundfile' backend
 
 from encodec import EncodecModel
 from encodec.utils import convert_audio
-from hubert_manager import HuBERTManager
-from pre_kmeans_hubert import CustomHubert
-from customtokenizer import CustomTokenizer
+from .hubert_manager import HuBERTManager
+from .pre_kmeans_hubert import CustomHubert
+from .customtokenizer import CustomTokenizer
 
 class VoiceParser():
     def __init__(self, device='cpu'):
