@@ -8,6 +8,12 @@ RUN wget \
 	&& bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda3 \
 	&& rm -f Miniconda3-latest-Linux-x86_64.sh
 
+# Set up a new user named "user" with user ID 1000
+RUN useradd -m -u 1000 user
+
+# Switch to the "user" user
+USER user
+
 # Add conda binary to PATH variable
 ENV HOME=/home/user \
 	PATH=/opt/miniconda3/bin:/home/user/.local/bin:$PATH \
@@ -15,7 +21,7 @@ ENV HOME=/home/user \
 
 # Setup conda envs
 WORKDIR $HOME/app
-COPY . .
+COPY --chown=user . $HOME/app
 
 # Conda envs setup 
 RUN bash ./scripts/EnvsSetup.sh
