@@ -1,3 +1,12 @@
+---
+title: WavJourney
+emoji: 🔥
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+license: cc-by-nc-nd-4.0
+---
 # <span style="color: blue;">🎵</span> WavJourney: Compositional Audio Creation with LLMs
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2307.14335) [![GitHub Stars](https://img.shields.io/github/stars/Audio-AGI/WavJourney?style=social)](https://github.com/Audio-AGI/WavJourney/) [![githubio](https://img.shields.io/badge/GitHub.io-Demo_Page-blue?logo=Github&style=flat-square)](https://audio-agi.github.io/WavJourney_demopage/) 
 
