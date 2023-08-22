@@ -16,6 +16,7 @@ with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)
     service_port = config['Service-Port']
     enable_sr = config['Speech-Restoration']['Enable']
+    localhost_addr = '0.0.0.0'
 
 
 def LOUDNESS_NORM(audio, sr=32000, volumn=-25):
@@ -111,7 +112,7 @@ def COMPUTE_LEN(wav):
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def TTM(text, length=10, volume=-28, out_wav='out.wav'):
-    url = f'http://127.0.0.1:{service_port}/generate_music'
+    url = f'http://{localhost_addr}:{service_port}/generate_music'
     data = {
         'text': f'{text}',
         'length': f'{length}',
@@ -129,7 +130,7 @@ def TTM(text, length=10, volume=-28, out_wav='out.wav'):
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def TTA(text, length=5, volume=-35, out_wav='out.wav'):
-    url = f'http://127.0.0.1:{service_port}/generate_audio'
+    url = f'http://{localhost_addr}:{service_port}/generate_audio'
     data = {
         'text': f'{text}',
         'length': f'{length}',
@@ -148,7 +149,7 @@ def TTA(text, length=5, volume=-35, out_wav='out.wav'):
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def TTS(text, speaker='news_anchor', volume=-20, out_wav='out.wav', enhanced=enable_sr, speaker_id='', speaker_npz=''):
-    url = f'http://127.0.0.1:{service_port}/generate_speech'
+    url = f'http://{localhost_addr}:{service_port}/generate_speech'
     data = {
     'text': f'{text}',
     'speaker_id': f'{speaker_id}',
@@ -171,7 +172,7 @@ def TTS(text, speaker='news_anchor', volume=-20, out_wav='out.wav', enhanced=ena
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def SR(processfile):
-    url = f'http://127.0.0.1:{service_port}/fix_audio'
+    url = f'http://{localhost_addr}:{service_port}/fix_audio'
     data = {'processfile': f'{processfile}'}
 
     response = requests.post(url, json=data)
@@ -185,7 +186,7 @@ def SR(processfile):
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
 def VP(wav_path, out_dir):
-    url = f'http://127.0.0.1:{service_port}/parse_voice'
+    url = f'http://{localhost_addr}:{service_port}/parse_voice'
     data = {
         'wav_path': f'{wav_path}', 
         'out_dir':f'{out_dir}'

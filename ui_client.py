@@ -48,7 +48,7 @@ def generate_script_fn(instruction, _state: gr.State):
         json_script = generate_json_file(session_id, instruction, api_key)
         table_text = convert_json_to_md(json_script)
     except Exception as e:
-        gr.Warning(str(e))
+        gr.Warning(str(e) + traceback.format_exc())
         print(f"Generating script error: {str(e)}")
         traceback.print_exc()
         return [
@@ -92,7 +92,7 @@ def generate_audio_fn(state):
     except Exception as e:
         print(f"Generation audio error: {str(e)}")
         traceback.print_exc()
-        gr.Warning(str(e))
+        gr.Warning(str(e) + traceback.format_exc())
 
     return [
         None,
@@ -194,7 +194,7 @@ def add_voice_preset(vp_id, vp_desc, file, ui_state, added_voice_preset):
         except Exception as exception:
             print(exception)
             traceback.print_exc()
-            gr.Warning(str(exception))
+            gr.Warning(str(exception) + traceback.format_exc())
 
     # After added
     dataframe = get_voice_preset_to_list(ui_state)
