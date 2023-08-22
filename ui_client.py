@@ -1,7 +1,7 @@
 import shutil
 import json5
+import traceback
 
-import openai
 import gradio as gr
 from tabulate import tabulate
 
@@ -44,11 +44,13 @@ def convert_char_voice_map_to_md(char_voice_map):
 def generate_script_fn(instruction, _state: gr.State):
     try:
         session_id = _state['session_id']
-        json_script = generate_json_file(session_id, instruction)
+        api_key = _state['api_key']
+        json_script = generate_json_file(session_id, instruction, api_key)
         table_text = convert_json_to_md(json_script)
     except Exception as e:
         gr.Warning(str(e))
         print(f"Generating script error: {str(e)}")
+        traceback.print_exc()
         return [
             None,
             _state,
@@ -89,9 +91,8 @@ def generate_audio_fn(state):
         ]
     except Exception as e:
         print(f"Generation audio error: {str(e)}")
+        traceback.print_exc()
         gr.Warning(str(e))
-        # For debugging, uncomment the line below
-        #raise e
 
     return [
         None,
@@ -172,8 +173,8 @@ def get_system_voice_presets():
     return data
 
 
-def set_openai_key(key):
-    openai.api_key = key
+def set_openai_key(key, _state):
+    _state['api_key'] = key
     return key
 
 
@@ -191,7 +192,10 @@ def add_voice_preset(vp_id, vp_desc, file, ui_state, added_voice_preset):
             add_session_voice_preset(vp_id, vp_desc, file_path, session_id)
             added_voice_preset['count'] = count + 1
         except Exception as exception:
+            print(exception)
+            traceback.print_exc()
             gr.Warning(str(exception))
+
     # After added
     dataframe = get_voice_preset_to_list(ui_state)
     df_visible = gr.Dataframe.update(visible=True)
@@ -379,7 +383,7 @@ with gr.Blocks(css=css) as interface:
 
     system_voice_presets = get_system_voice_presets()
     # State
-    ui_state = gr.State(value={'session_id': pipeline.init_session()})
+    ui_state = gr.State(value={'session_id': pipeline.init_session(), 'api_key': ''})
     selected_voice_presets = gr.State(value={'selected_voice_preset': None})
     added_voice_preset_state = gr.State(value={'added_file': None, 'count': 0})
     # UI Component
@@ -461,7 +465,7 @@ with gr.Blocks(css=css) as interface:
     )
 
     # events
-    key_text_input.change(fn=set_openai_key, inputs=[key_text_input], outputs=[key_text_input])
+    key_text_input.change(fn=set_openai_key, inputs=[key_text_input, ui_state], outputs=[key_text_input])
     text_input.change(fn=textbox_listener, inputs=[text_input], outputs=[generate_script_btn])
     generate_audio_btn.click(
         fn=generate_audio_fn,

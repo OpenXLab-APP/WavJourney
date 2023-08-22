@@ -62,6 +62,5 @@ def fade(audio_data, fade_duration=2, sr=32000):
 def get_key(config='config.yaml'):
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        openai_key = config['OpenAI-Key']
-    return openai_key
+        return config['OpenAI-Key'] if 'OpenAI-Key' in config else None
 

@@ -26,7 +26,7 @@ share_js = """async () => {
         const res = await fetch(videoEl.src);
         const blob = await res.blob();
         const videoId = Date.now() % 200;
-        const fileName = `sd-perception-${{videoId}}.mp4`;
+        const fileName = `sd-perception-${videoId}.mp4`;
         return new File([blob], fileName, { type: 'video/mp4' }); 
 	}
     
@@ -40,7 +40,7 @@ share_js = """async () => {
         });
       }
     const gradioEl = document.querySelector("gradio-app").shadowRoot || document.querySelector('body > gradio-app');
-    const inputPromptEl = gradioEl.querySelector('#prompt-in input').value;
+    const inputPromptEl = gradioEl.querySelector('#prompt-in textarea').value;
     const outputVideoEl = gradioEl.querySelector('#output-video video');
     
     let titleTxt = `WavJourney: ${inputPromptEl}`;
