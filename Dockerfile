@@ -30,5 +30,14 @@ RUN bash ./scripts/EnvsSetup.sh
 RUN conda run --live-stream -n WavJourney python scripts/download_models.py
 RUN mkdir $HOME/app/services_logs
 
+# Env settings to get docker images to work on HF Spaces
+ENV PYTHONPATH=${HOME}/app \
+    PYTHONUNBUFFERED=1 \
+    GRADIO_ALLOW_FLAGGING=never \
+    GRADIO_NUM_PORTS=1 \
+    GRADIO_SERVER_NAME=0.0.0.0 \
+    GRADIO_THEME=huggingface \
+    SYSTEM=spaces
+
 # entrypoint
 ENTRYPOINT bash /home/user/app/scripts/start_service_and_ui.sh
