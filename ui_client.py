@@ -109,8 +109,8 @@ def clear_fn(state):
         shutil.rmtree('output', ignore_errors=True)
     state = {'session_id': pipeline.init_session()}
     return [gr.Textbox.update(value=''), 
+            gr.Markdown.update(value=''),
             gr.Textbox.update(value=''), 
-            gr.Markdown.update(value=''), 
             gr.Video.update(value=None),
             gr.Markdown.update(value=''), 
             gr.Button.update(interactive=False), 
