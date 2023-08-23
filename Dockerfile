@@ -3,6 +3,8 @@ FROM python:3.11
 FROM nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN apt-get update 
+
 # Install miniconda
 RUN apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
