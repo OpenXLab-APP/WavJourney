@@ -8,7 +8,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-f', '--full', action='store_true', help='Go through the full process')
 parser.add_argument('--input-text', type=str, default='', help='input text or text file')
 parser.add_argument('--session-id', type=str, default='', help='session id, if set to empty, system will allocate an id')
-parser.add_argument('--api-key', type=str, default='', help='api key used for GPT-4')
 args = parser.parse_args()
 
 if args.full:
@@ -16,7 +15,9 @@ if args.full:
 
     start_time = time.time()
     session_id = pipeline.init_session(args.session_id)
-    api_key = args.api_key if args.api_key != '' else utils.get_key()
+    api_key = utils.get_api_key()
+
+    assert api_key != None, "Please set your openai_key in the environment variable."
     
     print(f"Session {session_id} is created.")
 
