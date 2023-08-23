@@ -9,6 +9,9 @@ with open('config.yaml', 'r') as file:
 ttm_model_size = config['AudioCraft']['ttm_model_size']
 tta_model_size = config['AudioCraft']['tta_model_size']
 
+# Download nltk
+import nltk
+nltk.download('punkt')
 
 # Downloading the TTS models
 print('Step 1: Downloading TTS model ...')
