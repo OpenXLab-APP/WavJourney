@@ -108,10 +108,18 @@ def clear_fn(state):
     if DELETE_FILE_WHEN_DO_CLEAR:
         shutil.rmtree('output', ignore_errors=True)
     state = {'session_id': pipeline.init_session()}
-    return [gr.Textbox.update(value=''), gr.Video.update(value=None),
-            gr.Markdown.update(value=''), gr.Button.update(interactive=False), gr.Button.update(interactive=False),
-            state, gr.Dataframe.update(visible=False), gr.Button.update(visible=False),
-            gr.Textbox.update(value=''), gr.Textbox.update(value=''), gr.File.update(value=None)]
+    return [gr.Textbox.update(value=''), 
+            gr.Textbox.update(value=''), 
+            gr.Markdown.update(value=''), 
+            gr.Video.update(value=None),
+            gr.Markdown.update(value=''), 
+            gr.Button.update(interactive=False), 
+            gr.Button.update(interactive=False),
+            state, gr.Dataframe.update(visible=False), 
+            gr.Button.update(visible=False),
+            gr.Textbox.update(value=''), 
+            gr.Textbox.update(value=''), 
+            gr.File.update(value=None)]
 
 
 def textbox_listener(textbox_input):
@@ -428,8 +436,6 @@ with gr.Blocks(css=css) as interface:
     audio_output = gr.Video(elem_id="output-video")
 
     generate_audio_btn = gr.Button(value='Generate Audio', interactive=False)
-
-    clear_btn = gr.ClearButton(value='Clear All')
     
     # share to community
     with gr.Group(elem_id="share-btn-container", visible=False):
@@ -462,6 +468,9 @@ with gr.Blocks(css=css) as interface:
         vp_file = gr.File(label='Wav File', type='file', file_types=['.wav'],
                         interactive=True)
         vp_submit = gr.Button(label='Upload Voice Preset', value="Upload Voice Preset")
+
+    # clear btn, will re-new a session
+    clear_btn = gr.ClearButton(value='Clear All')
 
     # disclaimer
     gr.Markdown(
@@ -502,7 +511,7 @@ with gr.Blocks(css=css) as interface:
         ]
     )
     clear_btn.click(fn=clear_fn, inputs=ui_state,
-                    outputs=[text_input, audio_output, audio_script_markdown, generate_audio_btn, generate_script_btn,
+                    outputs=[key_text_input, char_voice_map_markdown, text_input, audio_output, audio_script_markdown, generate_audio_btn, generate_script_btn,
                              ui_state, voice_presets_df, del_voice_btn,
                              vp_text_id, vp_text_desc, vp_file])
     generate_script_btn.click(
