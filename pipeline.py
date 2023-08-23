@@ -25,7 +25,6 @@ if USE_OPENAI_CACHE:
         with open(cache_file, 'rb') as file:
             openai_cache.append(pickle.load(file))
 
-
 def chat_with_gpt(prompt, api_key):
     if USE_OPENAI_CACHE:
         filtered_object = list(filter(lambda x: x['prompt'] == prompt, openai_cache))
