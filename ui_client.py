@@ -44,7 +44,7 @@ def convert_char_voice_map_to_md(char_voice_map):
 def generate_script_fn(instruction, _state: gr.State):
     try:
         session_id = _state['session_id']
-        api_key = _state['api_key']
+        api_key = utils.get_api_key()
         json_script = generate_json_file(session_id, instruction, api_key)
         table_text = convert_json_to_md(json_script)
     except Exception as e:
@@ -56,8 +56,8 @@ def generate_script_fn(instruction, _state: gr.State):
             _state,
             gr.Button.update(interactive=False),
             gr.Button.update(interactive=True),
-            gr.Button.update(interactive=False),
-            gr.Button.update(interactive=False),
+            gr.Button.update(interactive=True),
+            gr.Button.update(interactive=True),
         ]
 
     _state = {
@@ -78,7 +78,8 @@ def generate_script_fn(instruction, _state: gr.State):
 def generate_audio_fn(state):
     btn_state = gr.Button.update(interactive=True)
     try:
-        audio_path, char_voice_map = generate_audio(**state)
+        api_key = utils.get_api_key()
+        audio_path, char_voice_map = generate_audio(**state, api_key=api_key)
         table_text = convert_char_voice_map_to_md(char_voice_map)
         # TODO: output char_voice_map to a table
         return [
@@ -108,8 +109,7 @@ def clear_fn(state):
     if DELETE_FILE_WHEN_DO_CLEAR:
         shutil.rmtree('output', ignore_errors=True)
     state = {'session_id': pipeline.init_session()}
-    return [gr.Textbox.update(value=''), 
-            gr.Markdown.update(value=''),
+    return [gr.Markdown.update(value=''),
             gr.Textbox.update(value=''), 
             gr.Video.update(value=None),
             gr.Markdown.update(value=''), 
@@ -398,17 +398,17 @@ with gr.Blocks(css=css) as interface:
 
     system_voice_presets = get_system_voice_presets()
     # State
-    ui_state = gr.State(value={'session_id': pipeline.init_session(), 'api_key': ''})
+    ui_state = gr.State(value={'session_id': pipeline.init_session()})
     selected_voice_presets = gr.State(value={'selected_voice_preset': None})
     added_voice_preset_state = gr.State(value={'added_file': None, 'count': 0})
     # UI Component
-    gr.Markdown(
-    """
-    How can I access GPT-4? <a href="https://platform.openai.com/account/api-keys">[Ref1]</a><a href="https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4">[Ref2]</a>
-    """
-    )
-    key_text_input = gr.Textbox(label='Please Enter OPENAI Key for accessing GPT-4 API', lines=1, placeholder="OPENAI Key here.",
-                            value=utils.get_key())
+    # gr.Markdown(
+    # """
+    # How can I access GPT-4? <a href="https://platform.openai.com/account/api-keys">[Ref1]</a><a href="https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4">[Ref2]</a>
+    # """
+    # )
+    # key_text_input = gr.Textbox(label='Please Enter OPENAI Key for accessing GPT-4 API', lines=1, placeholder="OPENAI Key here.",
+    #                         value=utils.get_key())
     text_input_value = '' if DEBUG is False else "an audio introduction to quantum mechanics"
     
     text_input = gr.Textbox(
@@ -481,7 +481,7 @@ with gr.Blocks(css=css) as interface:
     )
 
     # events
-    key_text_input.change(fn=set_openai_key, inputs=[key_text_input, ui_state], outputs=[key_text_input])
+    # key_text_input.change(fn=set_openai_key, inputs=[key_text_input, ui_state], outputs=[key_text_input])
     text_input.change(fn=textbox_listener, inputs=[text_input], outputs=[generate_script_btn])
     generate_audio_btn.click(
         fn=generate_audio_fn,
@@ -511,7 +511,7 @@ with gr.Blocks(css=css) as interface:
         ]
     )
     clear_btn.click(fn=clear_fn, inputs=ui_state,
-                    outputs=[key_text_input, char_voice_map_markdown, text_input, audio_output, audio_script_markdown, generate_audio_btn, generate_script_btn,
+                    outputs=[char_voice_map_markdown, text_input, audio_output, audio_script_markdown, generate_audio_btn, generate_script_btn,
                              ui_state, voice_presets_df, del_voice_btn,
                              vp_text_id, vp_text_desc, vp_file])
     generate_script_btn.click(
