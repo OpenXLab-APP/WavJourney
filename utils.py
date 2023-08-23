@@ -1,3 +1,4 @@
+import os
 import re
 import torch
 import  numpy as np
@@ -59,8 +60,11 @@ def fade(audio_data, fade_duration=2, sr=32000):
     audio_data_faded = np.concatenate((audio_data_fade_in, audio_data[len(fade_in):-len(fade_out)], audio_data_fade_out))
     return audio_data_faded
 
-def get_key(config='config.yaml'):
-    with open('config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
-        return config['OpenAI-Key'] if 'OpenAI-Key' in config else None
+# def get_key(config='config.yaml'):
+#     with open('config.yaml', 'r') as file:
+#         config = yaml.safe_load(file)
+#         return config['OpenAI-Key'] if 'OpenAI-Key' in config else None
 
+def get_api_key():
+    api_key = os.environ.get('OPENAI_KEY')
+    return api_key       
