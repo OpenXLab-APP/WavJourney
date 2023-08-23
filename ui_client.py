@@ -379,6 +379,13 @@ with gr.Blocks(css=css) as interface:
     """
     )
 
+    gr.HTML(
+        """
+        <p>Begin with a text prompt, and let WavJourney transform it into captivating audio content. Experience engaging audio storylines, personalized voices, lifelike speech, emotionally resonant musical compositions, and immersive sound effects!
+        <p/>
+    """
+    )
+
 
 
     system_voice_presets = get_system_voice_presets()
@@ -389,17 +396,17 @@ with gr.Blocks(css=css) as interface:
     # UI Component
     gr.Markdown(
     """
-    How can I access GPT-4? <a href="https://platform.openai.com/account/api-keys">[Guidence1]</a><a href="https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4">[Guidence2]</a>
+    How can I access GPT-4? <a href="https://platform.openai.com/account/api-keys">[Ref1]</a><a href="https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4">[Ref2]</a>
     """
     )
     key_text_input = gr.Textbox(label='Please Enter OPENAI Key for accessing GPT-4 API', lines=1, placeholder="OPENAI Key here.",
                             value=utils.get_key())
-    text_input_value = '' if DEBUG is False else "Generate a one-minute introduction to quantum mechanics"
+    text_input_value = '' if DEBUG is False else "an audio introduction to quantum mechanics"
     
     text_input = gr.Textbox(
         label='Input Text Instruction', 
         lines=2, 
-        placeholder="Input instruction here (e.g., Generate a one-minute introduction to quantum mechanics).",
+        placeholder="Input instruction here (e.g., an audio introduction to quantum mechanics).",
         value=text_input_value,
         elem_id="prompt-in",)
 
