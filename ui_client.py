@@ -476,7 +476,22 @@ with gr.Blocks(css=css) as interface:
         vp_file = gr.File(label='Wav File', type='file', file_types=['.wav'],
                         interactive=True)
         vp_submit = gr.Button(label='Upload Voice Preset', value="Upload Voice Preset")
+    # add examples
+    from examples.examples import examples as WJExamples
+    def example_fn(idx, _text_input):
+        print('from example', idx, _text_input)
+        example = WJExamples[int(idx)-1]
+        return example['table_text'], gr.make_waveform(example['wav_file'])
 
+    _idx_input = gr.Textbox(label='Example No')
+    _idx_input.visible=False
+    gr.Examples(
+            [[idx+1, x['text']] for idx, x in enumerate(WJExamples)],
+            fn=example_fn,
+            inputs=[_idx_input, text_input],
+            outputs=[char_voice_map_markdown, audio_output],
+            cache_examples=True,
+        )
     # clear btn, will re-new a session
     clear_btn = gr.ClearButton(value='Clear All')
 
