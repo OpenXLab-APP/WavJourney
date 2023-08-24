@@ -17,7 +17,7 @@
     "Male2": {
         "id": "Male2",
         "desc": "a normal male adult voice, American accent",
-        "npz_path": "v2/en_speaker_2"
+        "npz_path": "v2/en_speaker_6"
     },
     "News_Male": {
         "id": "News_Male",
