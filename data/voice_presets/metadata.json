@@ -34,13 +34,13 @@
         "desc": "a female voice of a off-site news reporter, suitable for news scenario",
         "npz_path": "data/voice_presets/npz/news_female_speaker_outside.npz"
     },
-    "child": {
-        "id": "child",
+    "Child": {
+        "id": "Child",
         "desc": "a small young boy voice",
         "npz_path": "data/voice_presets/npz/child_boy.npz"
     },
-    "old_man": {
-        "id": "old_man",
+    "Old_man": {
+        "id": "Old_man",
         "desc": "a voice of an old man",
         "npz_path": "data/voice_presets/npz/elder_morgen.npz"
     }

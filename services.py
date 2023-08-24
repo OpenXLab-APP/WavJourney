@@ -227,4 +227,5 @@ def parse_voice():
 
 if __name__ == '__main__':
     service_port = get_service_port()
-    app.run(debug=False, port=service_port)
+    # We disable multithreading to force services to process one request at a time and avoid CUDA OOM
+    app.run(debug=False, threaded=False, port=service_port)

@@ -54,7 +54,7 @@ def generate_script_fn(instruction, _state: gr.State):
         json_script = generate_json_file(session_id, instruction, api_key)
         table_text = convert_json_to_md(json_script)
     except Exception as e:
-        gr.Warning(str(e) + traceback.format_exc())
+        gr.Warning(str(e))
         print(f"Generating script error: {str(e)}")
         traceback.print_exc()
         return [
@@ -99,7 +99,7 @@ def generate_audio_fn(state):
     except Exception as e:
         print(f"Generation audio error: {str(e)}")
         traceback.print_exc()
-        gr.Warning(str(e) + traceback.format_exc())
+        gr.Warning(str(e))
 
     return [
         None,
@@ -210,7 +210,7 @@ def add_voice_preset(vp_id, vp_desc, file, ui_state, added_voice_preset):
         except Exception as exception:
             print(exception)
             traceback.print_exc()
-            gr.Warning(str(exception) + traceback.format_exc())
+            gr.Warning(str(exception))
 
     # After added
     dataframe = get_voice_preset_to_list(ui_state)
@@ -451,10 +451,29 @@ with gr.Blocks(css=css) as interface:
         loading_icon = gr.HTML(loading_icon_html)
         share_button = gr.Button(value="Share to community", elem_id="share-btn")
 
+    # add examples
+    from examples.examples import examples as WJExamples
+    def example_fn(idx, _text_input):
+        print('from example', idx, _text_input)
+        example = WJExamples[int(idx)-1]
+        print(example['table_script'], example['table_voice'], gr.make_waveform(example['wav_file']))
+        return example['table_script'], example['table_voice'], gr.make_waveform(example['wav_file'])
+
+    _idx_input = gr.Textbox(label='Example No.')
+    _idx_input.visible=False
+    gr.Examples(
+            [[idx+1, x['text']] for idx, x in enumerate(WJExamples)],
+            fn=example_fn,
+            inputs=[_idx_input, text_input],
+            outputs=[audio_script_markdown, char_voice_map_markdown, audio_output],
+            cache_examples=True,
+        )
+
     # System Voice Presets
     gr.Markdown(label='System Voice Presets', value='# System Voice Presets')
-    system_markdown_voice_presets = gr.Dataframe(label='System Voice Presets', headers=VOICE_PRESETS_HEADERS,
-                                                 value=system_voice_presets)
+    with gr.Accordion("Click to see system speakers", open=False):
+        system_markdown_voice_presets = gr.Dataframe(label='System Voice Presets', headers=VOICE_PRESETS_HEADERS,
+                                                    value=system_voice_presets)
     # User Voice Preset Related
     gr.Markdown('# (Optional) Speaker Customization ')
     with gr.Accordion("Click to add speakers", open=False):
@@ -476,22 +495,7 @@ with gr.Blocks(css=css) as interface:
         vp_file = gr.File(label='Wav File', type='file', file_types=['.wav'],
                         interactive=True)
         vp_submit = gr.Button(label='Upload Voice Preset', value="Upload Voice Preset")
-    # add examples
-    from examples.examples import examples as WJExamples
-    def example_fn(idx, _text_input):
-        print('from example', idx, _text_input)
-        example = WJExamples[int(idx)-1]
-        return example['table_text'], gr.make_waveform(example['wav_file'])
-
-    _idx_input = gr.Textbox(label='Example No')
-    _idx_input.visible=False
-    gr.Examples(
-            [[idx+1, x['text']] for idx, x in enumerate(WJExamples)],
-            fn=example_fn,
-            inputs=[_idx_input, text_input],
-            outputs=[char_voice_map_markdown, audio_output],
-            cache_examples=True,
-        )
+    
     # clear btn, will re-new a session
     clear_btn = gr.ClearButton(value='Clear All')
 
@@ -579,5 +583,5 @@ with gr.Blocks(css=css) as interface:
     # debug only
     # print_state_btn = gr.Button(value='Print State')
     # print_state_btn.click(fn=lambda state, state2: print(state, state2), inputs=[ui_state, selected_voice_presets])
-interface.queue(concurrency_count=5, max_size=20)
+interface.queue(concurrency_count=1, max_size=20)
 interface.launch()

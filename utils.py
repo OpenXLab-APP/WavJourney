@@ -77,3 +77,6 @@ def get_api_key():
     api_key = os.environ.get('WAVJOURNEY_OPENAI_KEY')
     return api_key       
 
+def get_max_script_lines():
+    max_lines = int(os.environ.get('WAVJOURNEY_MAX_SCRIPT_LINES', 999))
+    return max_lines

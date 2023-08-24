@@ -194,6 +194,14 @@ def generate_json_file(session_id, input_text, api_key):
 
 # Function call used by Gradio: json to result wav
 def generate_audio(session_id, json_script, api_key):
+    def count_lines(content):
+        # Split the string using the newline character and count the non-empty lines
+        return sum(1 for line in content.split('\n') if line.strip())
+
+    max_lines = utils.get_max_script_lines()
+    if count_lines(json_script) > max_lines:
+        raise ValueError(f'The number of lines of the JSON script has exceeded {max_lines}!')
+
     output_path = utils.get_session_path(session_id)
     output_audio_path = utils.get_session_audio_path(session_id)
     voices = voice_presets.get_merged_voice_presets(session_id)

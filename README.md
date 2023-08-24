@@ -45,7 +45,14 @@ export WAVJOURNEY_OPENAI_KEY=your_openai_key_here
 
 6. Set environment variables for using API services
 ```bash
-export WAVJOURNEY_SERVICE_PORT=8021 WAVJOURNEY_SERVICE_URL=127.0.0.1
+# Set the port for the WAVJOURNEY service to 8021
+export WAVJOURNEY_SERVICE_PORT=8021
+
+# Set the URL for the WAVJOURNEY service to 127.0.0.1
+export WAVJOURNEY_SERVICE_URL=127.0.0.1
+
+# Limit the maximum script lines for WAVJOURNEY to 999
+export WAVJOURNEY_MAX_SCRIPT_LINES=999
 ```
 
 
