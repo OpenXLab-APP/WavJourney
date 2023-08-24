@@ -11,7 +11,7 @@ def save_voice_presets_metadata(voice_presets_path, metadata):
         json.dump(metadata, f, indent=4)
 
 def load_voice_presets_metadata(voice_presets_path, safe_if_metadata_not_exist=False):
-    metadata_full_path = voice_presets_path / 'metadata.json'
+    metadata_full_path = Path(voice_presets_path) / 'metadata.json'
 
     if safe_if_metadata_not_exist:
         if not os.path.exists(metadata_full_path):

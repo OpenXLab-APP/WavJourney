@@ -120,6 +120,7 @@ def init_session(session_id=''):
     # create the paths
     os.makedirs(utils.get_session_voice_preset_path(session_id))
     os.makedirs(utils.get_session_audio_path(session_id))
+    print(f'New session created, session_id={session_id}')
     return session_id
 
 @retry(stop_max_attempt_number=3)
@@ -142,7 +143,6 @@ def input_text_to_json_script_with_retry(complete_prompt_path, api_key):
 
 # Step 1: input_text to json
 def input_text_to_json_script(input_text, output_path, api_key):
-    print('Step 1: Writing audio script with LLM ...')
     input_text = maybe_get_content_from_file(input_text)
     text_to_audio_script_prompt = get_file_content('prompts/text_to_json.prompt')
     prompt = f'{text_to_audio_script_prompt}\n\nInput text: {input_text}\n\nScript:\n'
@@ -155,7 +155,6 @@ def input_text_to_json_script(input_text, output_path, api_key):
 
 # Step 2: json to char-voice map
 def json_script_to_char_voice_map(json_script, voices, output_path, api_key):
-    print('Step 2: Parsing character voice with LLM...')
     json_script_content = maybe_get_content_from_file(json_script)
     prompt = get_file_content('prompts/audio_script_to_character_voice_map.prompt')
     presets_str = '\n'.join(f"{preset['id']}: {preset['desc']}" for preset in voices.values())
@@ -172,7 +171,6 @@ def json_script_to_char_voice_map(json_script, voices, output_path, api_key):
     
 # Step 3: json to py code
 def json_script_and_char_voice_map_to_audio_gen_code(json_script_filename, char_voice_map_filename, output_path, result_filename):
-    print('Step 3: Compiling audio script to Python program ...')
     audio_code_generator = AudioCodeGenerator()
     code = audio_code_generator.parse_and_generate(
         json_script_filename,
@@ -184,14 +182,14 @@ def json_script_and_char_voice_map_to_audio_gen_code(json_script_filename, char_
 
 # Step 4: py code to final wav
 def audio_code_gen_to_result(audio_gen_code_path):
-    print('Step 4: Start running Python program ...')
     audio_gen_code_filename = audio_gen_code_path / 'audio_generation.py'
-    os.system(f'python {audio_gen_code_filename}')
+    os.system(f'PYTHONPATH=. python {audio_gen_code_filename}')
 
 # Function call used by Gradio: input_text to json
 def generate_json_file(session_id, input_text, api_key):
     output_path = utils.get_session_path(session_id)
     # Step 1
+    print(f'session_id={session_id}, Step 1: Writing audio script with LLM ...')
     return input_text_to_json_script(input_text, output_path, api_key)
 
 # Function call used by Gradio: json to result wav
@@ -201,13 +199,16 @@ def generate_audio(session_id, json_script, api_key):
     voices = voice_presets.get_merged_voice_presets(session_id)
 
     # Step 2
+    print(f'session_id={session_id}, Step 2: Parsing character voice with LLM...')
     char_voice_map = json_script_to_char_voice_map(json_script, voices, output_path, api_key)
     # Step 3
     json_script_filename = output_path / 'audio_script.json'
     char_voice_map_filename = output_path / 'character_voice_map.json'
     result_wav_basename = f'res_{session_id}'
+    print(f'session_id={session_id}, Step 3: Compiling audio script to Python program ...')
     json_script_and_char_voice_map_to_audio_gen_code(json_script_filename, char_voice_map_filename, output_path, result_wav_basename)
     # Step 4
+    print(f'session_id={session_id}, Step 4: Start running Python program ...')
     audio_code_gen_to_result(output_path)
 
     result_wav_filename = output_audio_path / f'{result_wav_basename}.wav'

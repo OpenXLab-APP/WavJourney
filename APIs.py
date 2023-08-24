@@ -6,6 +6,7 @@ import pyloudnorm as pyln
 from scipy.io.wavfile import write
 import torchaudio
 from retrying import retry
+from utils import get_service_port, get_service_url
  
 
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
@@ -14,10 +15,9 @@ SAMPLE_RATE = 32000
 
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)
-    service_port = config['Service-Port']
+    service_port = get_service_port()
+    localhost_addr = get_service_url()
     enable_sr = config['Speech-Restoration']['Enable']
-    localhost_addr = '0.0.0.0'
-
 
 def LOUDNESS_NORM(audio, sr=32000, volumn=-25):
     # peak normalize audio to -1 dB
@@ -148,7 +148,7 @@ def TTA(text, length=5, volume=-35, out_wav='out.wav'):
 
 
 @retry(stop_max_attempt_number=5, wait_fixed=2000)
-def TTS(text, speaker='news_anchor', volume=-20, out_wav='out.wav', enhanced=enable_sr, speaker_id='', speaker_npz=''):
+def TTS(text, volume=-20, out_wav='out.wav', enhanced=enable_sr, speaker_id='', speaker_npz=''):
     url = f'http://{localhost_addr}:{service_port}/generate_speech'
     data = {
     'text': f'{text}',

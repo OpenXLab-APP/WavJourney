@@ -15,7 +15,3 @@ Speech-Restoration:
 Voice-Parser:
   # HuBERT
   device: 'cpu'
-
-Service-Port: 8021
-
-OpenAI-Key: ''

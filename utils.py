@@ -65,6 +65,15 @@ def fade(audio_data, fade_duration=2, sr=32000):
 #         config = yaml.safe_load(file)
 #         return config['OpenAI-Key'] if 'OpenAI-Key' in config else None
 
+def get_service_port():
+    service_port = os.environ.get('WAVJOURNEY_SERVICE_PORT')
+    return service_port
+
+def get_service_url():
+    service_url = os.environ.get('WAVJOURNEY_SERVICE_URL')
+    return service_url 
+
 def get_api_key():
-    api_key = os.environ.get('OPENAI_KEY')
+    api_key = os.environ.get('WAVJOURNEY_OPENAI_KEY')
     return api_key       
+

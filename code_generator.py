@@ -113,10 +113,8 @@ class AudioCodeGenerator:
             return wav_filename
 
         header = f'''
-import sys
-sys.path.append('../AudioJourney')
-
 import os
+import sys
 import datetime
 
 from APIs import TTM, TTS, TTA, MIX, CAT, COMPUTE_LEN

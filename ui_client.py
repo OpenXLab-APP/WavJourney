@@ -41,9 +41,15 @@ def convert_char_voice_map_to_md(char_voice_map):
     return table_txt
 
 
+def get_or_create_session_from_state(ui_state):
+    if 'session_id' not in ui_state:
+        ui_state['session_id'] = pipeline.init_session()
+    return ui_state['session_id']
+
+
 def generate_script_fn(instruction, _state: gr.State):
     try:
-        session_id = _state['session_id']
+        session_id = get_or_create_session_from_state(_state)
         api_key = utils.get_api_key()
         json_script = generate_json_file(session_id, instruction, api_key)
         table_text = convert_json_to_md(json_script)
@@ -130,12 +136,14 @@ def textbox_listener(textbox_input):
 
 
 def get_voice_preset_to_list(state: gr.State):
-    if state.__class__ == dict:
-        session_id = state['session_id']
+    if state.__class__ == gr.State:
+        state = state.value
+    if 'session_id' in state:
+        path = utils.get_session_voice_preset_path(state['session_id'])
     else:
-        session_id = state.value['session_id']
+        path = ''
     voice_presets = load_voice_presets_metadata(
-        utils.get_session_voice_preset_path(session_id),
+        path,
         safe_if_metadata_not_exist=True
     )
     dataframe = []
@@ -192,7 +200,7 @@ def add_voice_preset(vp_id, vp_desc, file, ui_state, added_voice_preset):
     else:
         count: int = added_voice_preset['count']
         # check if greater than 3
-        session_id = ui_state['session_id']
+        session_id = get_or_create_session_from_state(ui_state)
         file_path = file.name
         print(f'session {session_id}, id {id}, desc {vp_desc}, file {file_path}')
         # Do adding ...
@@ -398,7 +406,7 @@ with gr.Blocks(css=css) as interface:
 
     system_voice_presets = get_system_voice_presets()
     # State
-    ui_state = gr.State(value={'session_id': pipeline.init_session()})
+    ui_state = gr.State({})
     selected_voice_presets = gr.State(value={'selected_voice_preset': None})
     added_voice_preset_state = gr.State(value={'added_file': None, 'count': 0})
     # UI Component

@@ -6,7 +6,7 @@ import torch
 import torchaudio
 from torchaudio.transforms import SpeedPerturbation
 from APIs import WRITE_AUDIO, LOUDNESS_NORM
-from utils import fade
+from utils import fade, get_service_port
 from flask import Flask, request, jsonify
 
 with open('config.yaml', 'r') as file:
@@ -226,5 +226,5 @@ def parse_voice():
 
 
 if __name__ == '__main__':
-    service_port = config['Service-Port']
+    service_port = get_service_port()
     app.run(debug=False, port=service_port)

@@ -8,7 +8,7 @@ pinned: false
 license: cc-by-nc-nd-4.0
 ---
 # <span style="color: blue;">🎵</span> WavJourney: Compositional Audio Creation with LLMs
-[![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2307.14335) [![GitHub Stars](https://img.shields.io/github/stars/Audio-AGI/WavJourney?style=social)](https://github.com/Audio-AGI/WavJourney/) [![githubio](https://img.shields.io/badge/GitHub.io-Demo_Page-blue?logo=Github&style=flat-square)](https://audio-agi.github.io/WavJourney_demopage/) 
+[![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2307.14335) [![GitHub Stars](https://img.shields.io/github/stars/Audio-AGI/WavJourney?style=social)](https://github.com/Audio-AGI/WavJourney/) [![githubio](https://img.shields.io/badge/GitHub.io-Demo_Page-blue?logo=Github&style=flat-square)](https://audio-agi.github.io/WavJourney_demopage/) [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/Audio-AGI/WavJourney)  
 
 
 This repository contains the official implementation of ["WavJourney: Compositional Audio Creation with Large Language Models"](https://audio-agi.github.io/WavJourney_demopage/WavJourney_arXiv.pdf).
@@ -32,14 +32,24 @@ bash ./scripts/EnvsSetup.sh
 conda activate WavJourney
 ```
 
-3. Set your `OpenAI-Key` in `config.yaml` for accessing [GPT-4 API](https://platform.openai.com/account/api-keys) [[Guidance](https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4)]. Please make sure the 'Service-Port' is not occupied. You can also modify the configuration, check the details described in the configuration file.
-
-3. Pre-download the models (might take some time):
+3. (Optional) You can modify the default configuration in `config.yaml`, check the details described in the configuration file. 
+4. Pre-download the models (might take some time):
 ```bash
 python scripts/download_models.py
 ```
 
-5. Start Python API services (e.g., Text-to-Speech, Text-to-Audio)
+5. Set the WAVJOURNEY_OPENAI_KEY in the environment variable for accessing [GPT-4 API](https://platform.openai.com/account/api-keys) [[Guidance](https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4)]
+```bash
+export WAVJOURNEY_OPENAI_KEY=your_openai_key_here
+```
+
+6. Set environment variables for using API services
+```bash
+export WAVJOURNEY_SERVICE_PORT=8021 WAVJOURNEY_SERVICE_URL=127.0.0.1
+```
+
+
+7. Start Python API services (e.g., Text-to-Speech, Text-to-Audio)
 ```bash
 bash scripts/start_services.sh
 ```
@@ -51,7 +61,7 @@ bash scripts/start_ui.sh
 
 ## Commandline Usage
  ```bash
- python wavjourney_cli.py -f --input-text "Generate a one-minute introduction to quantum mechanics"
+ python wavjourney_cli.py -f --input-text "Generate a one-minute introduction to quantum mechanics" 
  ```
 
 
