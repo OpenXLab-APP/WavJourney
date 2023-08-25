@@ -189,7 +189,7 @@ def audio_code_gen_to_result(audio_gen_code_path):
 def generate_json_file(session_id, input_text, api_key):
     output_path = utils.get_session_path(session_id)
     # Step 1
-    print(f'session_id={session_id}, Step 1: Writing audio script with LLM ...')
+    print(f'session_id={session_id}, Step 1: Writing audio script based on text: {input_text} ...')
     return input_text_to_json_script(input_text, output_path, api_key)
 
 # Function call used by Gradio: json to result wav
