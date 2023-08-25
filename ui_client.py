@@ -406,9 +406,9 @@ with gr.Blocks(css=css) as interface:
         """
         <p>WavJourney Pipeline:<p/>
         <ul>
-        <li>Stage 0: (optional) add your customized voice preset for more personalized audio creation experience.</li>
+        <li>Stage 0: (optional) add your customized voice preset for a more personalized audio creation experience.</li>
         <li>Stage 1: generate the audio script based on the input text instruction (the default language is English, but you can actually type in your own language).</li>
-        <li>Stage 2: Select the suitable voice in the multilingual voice preset for the each character in the audio script & generate audio.</li>
+        <li>Stage 2: select the suitable voice in the multilingual voice preset for each character in the audio script & generate audio.</li>
         </ul>
 
 
@@ -518,7 +518,7 @@ with gr.Blocks(css=css) as interface:
         gr.Markdown(
         """
         
-        What makes for good voice prompt? See detailed instructions <a href="https://github.com/gitmylo/bark-voice-cloning-HuBERT-quantizer">here</a>. 
+        What makes for a good voice prompt? See detailed instructions <a href="https://github.com/gitmylo/bark-voice-cloning-HuBERT-quantizer">here</a>. 
         """
         )
         vp_text_id = gr.Textbox(label='Id', lines=1, placeholder="Input voice preset id here.")
