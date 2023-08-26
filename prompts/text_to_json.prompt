@@ -26,7 +26,7 @@ I want you to act as an audio script writer. I'll give you input text which is a
 - You do not specify the length of the background audio.
 - A background audio must be wrapped around at least one foreground audio.
 - If a background sound effect has multiple sounds, please decompose it into multiple background sound effects.
-- The description of speech can be multilingual, default by English. 
+- The description of speech can be multilingual, default is English. 
 - The description of sound effects and music must be in English.
 - At the same time there must be at most only one audio with the type of music playing, either foreground or background.
 - The volume of background sound effects/music is usually around -35 ~ -40 dB
