@@ -409,7 +409,7 @@ with gr.Blocks(css=css) as interface:
     gr.HTML(
         """
         <ul>
-        <li>Stage 0: (optional) add your customized voice preset for a more personalized audio creation experience.</li>
+        <li>Stage 0: (optional) add your customized voice preset for a more personalized audio creation experience. User also often shares presets in <a href="https://discord.com/invite/5Hqu9NmA8V">Discord</a>.</li>
         <li>Stage 1: generate the audio script based on the input text instruction (the default language is English, but you can actually type in your own language).</li>
         <li>Stage 2: Select the suitable voice in the multilingual voice preset for each character in the audio script & generate audio.</li>
         </ul>
@@ -472,7 +472,8 @@ with gr.Blocks(css=css) as interface:
         """
         <ul> 
         <li> You can share with the HuggingFace community by clicking the "Share to community" button.</li>
-        <li> You can also share your generations to our <a href="https://discord.com/invite/5Hqu9NmA8V">discord</a> channel!</li>
+        <li> You can share your generations to our <a href="https://discord.com/invite/5Hqu9NmA8V">Discord</a> channel!</li>
+        <li> You can also share the voice presets (along with descriptions) you found in <a href="https://discord.com/invite/5Hqu9NmA8V">Discord</a>.</li>
         </ul>
     """
     )
