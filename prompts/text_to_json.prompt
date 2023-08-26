@@ -15,7 +15,7 @@ I want you to act as an audio script writer. I'll give you input text which is a
 '''
 - If speech is a singing voice, you should use the ♪ symbol to wrap content. ♪ must appear at both the beginning and end. Example:
 '''
-{"audio_type": "speech", "layout": "foreground", "character": "singer", "vol": -15, "text": "♪ In the jungle, the mighty jungle, the lion barks tonight ♪"},
+{"audio_type": "speech", "layout": "foreground", "character": "Singer", "vol": -15, "text": "♪ In the jungle, the mighty jungle, the lion barks tonight ♪"},
 '''
 - The description of speech should not contain anything other than the lines, such as actions, expressions, emotions etc.
 - For background sound audio, you must specify the beginning and the end of background audio in separate lines to indicate when the audio begins and when it ends. Example for background sound effect (for background music it's similar):
