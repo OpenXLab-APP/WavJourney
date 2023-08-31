@@ -452,7 +452,7 @@ with gr.Blocks(css=css) as interface:
     
     gr.Markdown(
     """
-    Clicking 'Generate Audio' button, the voice mapping results & generated audio will be displayed below.
+    Clicking 'Generate Audio' button, the voice mapping results & generated audio will be displayed below (might take some time).
     """
     )
     char_voice_map_markdown = gr.Markdown(label='Character-to-voice Map')
