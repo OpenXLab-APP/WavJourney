@@ -384,10 +384,10 @@ with gr.Blocks(css=css) as interface:
                 </div>
             """
         )
-
     gr.HTML(
         """
-        <p>For faster inference without waiting in the queue, you may duplicate the space and upgrade to GPU (VRAM>16G) in settings.
+        <p>Due to the high user demand we are facing from our community, we will be offering free access to WavJourney for a few more days. You can also access WavJourney in this space later by providing your OPENAI_KEY.<p/>
+        <p>For faster inference without waiting in the queue, you can duplicate the space and upgrade to GPU (VRAM>16G) and provide OPENAI_KEY to access GPT-4 in settings.
         <br>
         <a href="https://huggingface.co/spaces/Audio-AGI/WavJourney?duplicate=true">
         <img style="margin-top: 0em; margin-bottom: 0em" src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>
